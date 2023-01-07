@@ -2,6 +2,9 @@ import math
 import pygame
 import random
 import time
+import matplotlib.pyplot as plt
+import networkx as nx
+
 
 pygame.init() #init the pygame
 
@@ -45,7 +48,7 @@ class UIInfo: #class that has UI info...like window height width colors ...
 def draw(draw_ui):
     draw_ui.window.fill(draw_ui.BACKGROUND_COLOR)
 
-    controls = draw_ui.FONT.render("R - create a new list | SPACE - start sorting | A - sort in ascending oreder | D - sort in descending order", 1, draw_ui.BLACK) # the text of the screen
+    controls = draw_ui.FONT.render("R - create a new list | SPACE - start sorting | A - sort in ascending oreder | D - sort in descending order | G - To see the graph", 1, draw_ui.BLACK) # the text of the screen
     draw_ui.window.blit(controls, (10,5))
 
     draw_list(draw_ui)
@@ -185,9 +188,39 @@ def heap_sort(draw_info, ascending=True):
     for i in range(n - 1, 0, -1):
         (arr[i], arr[0]) = (arr[0], arr[i])  # swap
         draw_list(draw_info, {i: draw_info.GREEN, i-1:draw_info.RED}, True)
-        time.sleep(0.5)
+        time.sleep(0.3)
         heapify(arr, i, 0, ascending)
  
+
+
+
+def draw_my_graph(l):
+    G=nx.Graph()
+    ox = 1
+    oy = 1
+    pos = {}
+
+    for i in l:
+        G.add_node(str(i))
+        pos[str(i)] = (ox, oy)
+        ox = ox + 0.3
+        oy = oy + 0.3
+
+    
+    # for i in range(1, len(l)):
+    #     if 2 * i + 1 < len(l):
+    #         G.add_edge(l[i], l[2 * i + 1])
+    #     if 2 * i + 2 < len(l):
+    #         G.add_edge(l[i], l[ 2 * i + 2])
+
+    for i in range(len(l) - 1, 0, -1):
+        G.add_edge(l[i], l[(i-1)//2])
+        
+    pos=nx.spring_layout(G)
+    nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=100,font_color="white",font_size=10,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
+    plt.margins(0.2)
+    plt.show()
+
 
 
 def main(): #the main piece of code where all the things happen
@@ -212,7 +245,7 @@ def main(): #the main piece of code where all the things happen
     while running_program == True:
         pygame.display.update()    
         if cnt == 1:
-            time.sleep(0.4)
+            time.sleep(0.3)
 
         cnt = 1
 
@@ -240,10 +273,13 @@ def main(): #the main piece of code where all the things happen
                 ascending = True
             elif event.key == pygame.K_d and sorting == False:#descending sort
                 ascending = False
+            elif event.key == pygame.K_g:
+                draw_my_graph(list_to_be_sorted)
 
     pygame.quit()
 
     print(list_to_be_sorted)
+    
 
 
 if __name__ == "__main__":
