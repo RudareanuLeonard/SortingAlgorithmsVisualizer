@@ -1,6 +1,7 @@
 import math
 import pygame
 import random
+import time
 
 pygame.init() #init the pygame
 
@@ -46,12 +47,19 @@ def draw(draw_ui):
 
     controls = draw_ui.FONT.render("R - create a new list | SPACE - start sorting | A - sort in ascending oreder | D - sort in descending order", 1, draw_ui.BLACK) # the text of the screen
     draw_ui.window.blit(controls, (10,5))
+
     draw_list(draw_ui)
     pygame.display.update()
 
 
-def draw_list(draw_list, color_positions={}):
+def draw_list(draw_list, color_positions={}, clear_background=False):
     list_to_be_sorted = draw_list.list_to_be_sorted
+
+    if clear_background:
+        clear_rect = (draw_list.SIDE_PAD//2, draw_list.TOP_PAD, 
+						draw_list.width - draw_list.SIDE_PAD, draw_list.height - draw_list.TOP_PAD)
+        pygame.draw.rect(draw_list.window, draw_list.BACKGROUND_COLOR, clear_rect)
+
     color_num = 0
     #start drawing from the top left corner(where pixel 0,0 is), so we figure out the height of the bar and then substract it from the height of the screen
     for i, val in enumerate(list_to_be_sorted):
@@ -60,11 +68,13 @@ def draw_list(draw_list, color_positions={}):
         color = draw_list.GRADIENT[color_num % 3] #first, second or third color
         color_num = color_num + 1 
         
-        for i in color_positions:
+        if i in color_positions:
             color = color_positions[i]
 
         pygame.draw.rect(draw_list.window, color, (x, y, draw_list.bar_width, draw_list.height)) #draw the block
-        
+    
+    if clear_background:
+        pygame.display.update()
 
 
 
@@ -86,7 +96,7 @@ def some_sort(draw_info, ascending=True):
                     aux = list_to_be_sorted[i]
                     list_to_be_sorted[i] = list_to_be_sorted[j]
                     list_to_be_sorted[j] = aux
-                    draw_list(draw_info, {j: draw_info.BLACK, j+1:draw_info.RED})
+                    draw_list(draw_info, {j: draw_info.GREEN, j+1:draw_info.RED}, True)
                     yield True #stop the function at the point it is and can resume it later from the same point
                     
             else:
@@ -94,7 +104,7 @@ def some_sort(draw_info, ascending=True):
                     aux = list_to_be_sorted[i]
                     list_to_be_sorted[i] = list_to_be_sorted[j]
                     list_to_be_sorted[j] = aux
-                    draw_list(draw_info, {j: draw_info.BLACK, j+1:draw_info.RED})
+                    draw_list(draw_info, {j: draw_info.GREEN, j+1:draw_info.RED}, True)
                     yield True #stop the function at the point it is and can resume it later from the same point
 
 
@@ -104,9 +114,9 @@ def some_sort(draw_info, ascending=True):
 
 def main(): #the main piece of code where all the things happen
     running_program = True
-    n = 50
+    n = 15
     min_value = 0
-    max_value = 100
+    max_value = 10
 
     list_to_be_sorted = generate_list_to_be_sorted(n, min_value, max_value)
 
@@ -116,12 +126,17 @@ def main(): #the main piece of code where all the things happen
     ascending = True # ascending sort ----- if false => descending sort
 
     sorting_algorithm = some_sort
-    sorting_algorithm_name = "Bubble sort"
+    sorting_algorithm_name = "Heap Sort"
     sorting_algorithm_generator = None
 
+    cnt = 0
+
     while running_program == True:
-        pygame.display.update()
-        
+        pygame.display.update()    
+        if cnt == 1:
+            time.sleep(0.4)
+
+        cnt = 1
 
         if sorting: #if we are sorting, we try to call the 'next' method => next step in the generator
             try:
