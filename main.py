@@ -112,11 +112,89 @@ def some_sort(draw_info, ascending=True):
 
 
 
+
+def heapify(arr, n, i, ascending):
+    
+    if ascending == True:
+        largest = i  # Initialize largest as root
+        l = 2 * i + 1  # left = 2*i + 1
+        r = 2 * i + 2  # right = 2*i + 2
+    
+    # See if left child of root exists and is
+    # greater than root
+    
+        if l < n and arr[i] < arr[l]:
+            largest = l
+    
+    # See if right child of root exists and is
+    # greater than root
+    
+        if r < n and arr[largest] < arr[r]:
+            largest = r
+    
+    # Change root, if needed
+    
+        if largest != i:
+            (arr[i], arr[largest]) = (arr[largest], arr[i])  # swap
+    
+    # Heapify the root.
+    
+            heapify(arr, n, largest, ascending)
+    else:#descending
+        smallest = i # Initialize smallest as root
+        l = 2 * i + 1 # left = 2*i + 1
+        r = 2 * i + 2 # right = 2*i + 2
+    
+        # If left child is smaller than root
+        if l < n and arr[l] < arr[smallest]:
+            smallest = l
+    
+        # If right child is smaller than
+        # smallest so far
+        if r < n and arr[r] < arr[smallest]:
+            smallest = r
+    
+        # If smallest is not root
+        if smallest != i:
+            (arr[i],
+            arr[smallest]) = (arr[smallest],
+                            arr[i])
+    
+            # Recursively heapify the affected
+            # sub-tree
+            heapify(arr, n, smallest, ascending)
+ 
+# The main function to sort an array of given size
+ 
+def heap_sort(draw_info, ascending=True):
+    arr = draw_info.list_to_be_sorted
+    n = len(arr)
+
+ 
+ # Build a heap.
+ # Since last parent will be at ((n//2)-1) we can start at that location.
+
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i, ascending)
+        # draw_list(draw_info, {i: draw_info.GREEN, i-1:draw_info.RED}, True)
+        # yield True #stop the function at the point it is and can resume it later from the same point
+
+ 
+ # One by one extract elements
+ 
+    for i in range(n - 1, 0, -1):
+        (arr[i], arr[0]) = (arr[0], arr[i])  # swap
+        draw_list(draw_info, {i: draw_info.GREEN, i-1:draw_info.RED}, True)
+        time.sleep(0.5)
+        heapify(arr, i, 0, ascending)
+ 
+
+
 def main(): #the main piece of code where all the things happen
     running_program = True
     n = 15
     min_value = 0
-    max_value = 10
+    max_value = 100
 
     list_to_be_sorted = generate_list_to_be_sorted(n, min_value, max_value)
 
@@ -125,9 +203,9 @@ def main(): #the main piece of code where all the things happen
     sorting = False #var that know if we are sorting the list or not
     ascending = True # ascending sort ----- if false => descending sort
 
-    sorting_algorithm = some_sort
+    sorting_algorithm = heap_sort
     sorting_algorithm_name = "Heap Sort"
-    sorting_algorithm_generator = None
+    # sorting_algorithm_generator = None
 
     cnt = 0
 
@@ -138,13 +216,13 @@ def main(): #the main piece of code where all the things happen
 
         cnt = 1
 
-        if sorting: #if we are sorting, we try to call the 'next' method => next step in the generator
-            try:
-                next(sorting_algorithm_generator)
-            except StopIteration: #it means the generator is finished
-                sorting = False
-        else:
-            draw(ui_info)
+        # if sorting: #if we are sorting, we try to call the 'next' method => next step in the generator
+        #     try:
+        #         next(sorting_algorithm_generator)
+        #     except StopIteration: #it means the generator is finished
+        #         sorting = False
+        # else:
+        draw(ui_info)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -164,6 +242,8 @@ def main(): #the main piece of code where all the things happen
                 ascending = False
 
     pygame.quit()
+
+    print(list_to_be_sorted)
 
 
 if __name__ == "__main__":
